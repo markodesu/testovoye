@@ -61,7 +61,7 @@ export default function OklchColorPicker() {
     }
       // parsedOklch values are in library scale (L and C in 0..1), convert to state scale
       const nextL = clamp(parsedOklch.l * 100, 0, 100);
-      const nextC = Math.max(parsedOklch.c * 100, 0);
+      const nextC = clamp(parsedOklch.c * 100, 0, 120);
     const nextH = normalizeHue(parsedOklch.h);
     const nextA = clamp(parsedOklch.alpha ?? 1, 0, 1);
 
@@ -86,7 +86,7 @@ export default function OklchColorPicker() {
     <div style={{ maxWidth: 520, margin: '0 auto', fontFamily: 'system-ui, sans-serif', color: '#111' }}>
       <h2>OKLCH Color Picker</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 20, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 270px', gap: 20, alignItems: 'start' }}>
         <div style={{ display: 'grid', gap: 18 }}>
           <Slider label="Lightness (L)" value={l} min={0} max={100} step={0.1} onChange={setL} />
           <Slider label="Chroma (C)" value={c} min={0} max={120} step={0.1} onChange={setC} />
@@ -161,7 +161,7 @@ function TextInput({ label, value, onChange, onCommit }) {
             onCommit();
           }
         }}
-        style={{ width: '100%', padding: '9px 10px', borderRadius: 8, border: '1px solid #ccc', fontFamily: 'monospace' }}
+        style={{ width: '100%', boxSizing: 'border-box', padding: '9px 10px', borderRadius: 8, border: '1px solid #ccc', fontFamily: 'monospace' }}
       />
     </label>
   );
