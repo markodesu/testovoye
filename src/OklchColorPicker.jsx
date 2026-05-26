@@ -15,8 +15,25 @@ export default function OklchColorPicker() {
   const [rgbInput, setRgbInput] = useState(() => formatRgbString(initialColor));
   const [inputError, setInputError] = useState('');
 
-  const color = useMemo(() => oklch({ l, c, h, alpha: a }), [l, c, h, a]);
+  // Library expects L and C in 0..1, state stores L in 0..100 and C in 0..120
+  const color = useMemo(() => oklch({ l: l / 100, c: c / 100, h, alpha: a }), [l, c, h, a]);
   const srgb = useMemo(() => rgb(color), [color]);
+
+  // Build a CSS color string from the `rgbInput` display string so preview uses the exact text input
+  const previewColorCss = useMemo(() => {
+    if (!rgbInput) return '#000';
+    const parts = rgbInput.split('/');
+    if (parts.length === 2) {
+      const rgbPart = parts[0].trim();
+      const alphaPart = parts[1].trim();
+      const alphaNum = Number(alphaPart);
+      const nums = rgbPart.match(/\d+/g);
+      if (nums && nums.length >= 3 && !Number.isNaN(alphaNum)) {
+        return `rgba(${nums[0]}, ${nums[1]}, ${nums[2]}, ${alphaNum})`;
+      }
+    }
+    return rgbInput;
+  }, [rgbInput]);
   const gamutOk = useMemo(
     () =>
       !!srgb && [srgb.r, srgb.g, srgb.b].every((channel) => channel >= 0 && channel <= 1),
@@ -42,9 +59,9 @@ export default function OklchColorPicker() {
       setInputError('Could not convert the color to OKLCH. Try another format.');
       return;
     }
-
-    const nextL = clamp(parsedOklch.l, 0, 100);
-    const nextC = Math.max(parsedOklch.c, 0);
+      // parsedOklch values are in library scale (L and C in 0..1), convert to state scale
+      const nextL = clamp(parsedOklch.l * 100, 0, 100);
+      const nextC = Math.max(parsedOklch.c * 100, 0);
     const nextH = normalizeHue(parsedOklch.h);
     const nextA = clamp(parsedOklch.alpha ?? 1, 0, 1);
 
@@ -60,9 +77,9 @@ export default function OklchColorPicker() {
     height: 180,
     borderRadius: 12,
     border: '1px solid #ccc',
-    backgroundColor: srgb
+    backgroundColor: previewColorCss || (srgb
       ? `rgba(${Math.round(srgb.r * 255)}, ${Math.round(srgb.g * 255)}, ${Math.round(srgb.b * 255)}, ${a})`
-      : '#000',
+      : '#000'),
   };
 
   return (
@@ -195,7 +212,8 @@ function formatOklchString({ l, c, h, a }) {
 }
 
 function formatRgbString({ l, c, h, a }) {
-  const srgbColor = rgb(oklch({ l, c, h, alpha: a }));
+  // Normalize L and C for the library (state stores L and C in 0..100)
+  const srgbColor = rgb(oklch({ l: l / 100, c: c / 100, h, alpha: a }));
   if (!srgbColor) {
     return 'rgb(0, 0, 0)';
   }
