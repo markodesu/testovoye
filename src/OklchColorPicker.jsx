@@ -148,21 +148,59 @@ function Slider({ label, value, min, max, step, onChange }) {
 }
 
 function TextInput({ label, value, onChange, onCommit }) {
+  const [copied, setCopied] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  const handleCopy = async () => {
+    if (typeof navigator === 'undefined' || !navigator.clipboard) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (e) {
+      // ignore clipboard errors silently
+      console.error('Copy failed', e);
+    }
+  };
+
   return (
     <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>
       <span style={{ fontWeight: 600 }}>{label}</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        onBlur={onCommit}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            onCommit();
-          }
-        }}
-        style={{ width: '100%', boxSizing: 'border-box', padding: '9px 10px', borderRadius: 8, border: '1px solid #ccc', fontFamily: 'monospace' }}
-      />
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onCommit}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              onCommit();
+            }
+          }}
+          style={{ width: '100%', boxSizing: 'border-box', padding: '9px 10px', borderRadius: 8, border: '1px solid #ccc', fontFamily: 'monospace' }}
+        />
+        <button
+          type="button"
+          onClick={handleCopy}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          style={{
+            marginLeft: 8,
+            padding: '6px 10px',
+            borderRadius: 8,
+            border: 'none',
+            background: hover ? '#e6e6e6' : '#f0f0f0',
+            cursor: 'pointer',
+            fontSize: 13,
+            transition: 'background .12s',
+          }}
+          aria-label={`Copy ${label} value`}
+        >
+          {copied ? 'Copied!' : 'Copy'}
+        </button>
+      </div>
     </label>
   );
 }
