@@ -200,9 +200,10 @@ function formatRgbString({ l, c, h, a }) {
     return 'rgb(0, 0, 0)';
   }
 
-  const r = Math.round(srgbColor.r * 255);
-  const g = Math.round(srgbColor.g * 255);
-  const b = Math.round(srgbColor.b * 255);
+  // Clamp channels to 0..255 to avoid displaying out-of-range values
+  const r = Math.round(clamp(srgbColor.r * 255, 0, 255));
+  const g = Math.round(clamp(srgbColor.g * 255, 0, 255));
+  const b = Math.round(clamp(srgbColor.b * 255, 0, 255));
 
   return a < 1
     ? `rgb(${r}, ${g}, ${b}) / ${Number(a.toFixed(2))}`
