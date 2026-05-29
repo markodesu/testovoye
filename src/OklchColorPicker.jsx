@@ -73,53 +73,115 @@ export default function OklchColorPicker() {
   };
 
   const previewStyle = {
-    width: 180,
-    height: 180,
-    borderRadius: 12,
-    border: '1px solid #ccc',
+    width: 200,
+    height: 200,
+    borderRadius: 16,
+    border: '2px solid rgba(0,0,0,0.1)',
     backgroundColor: previewColorCss || (srgb
       ? `rgba(${Math.round(srgb.r * 255)}, ${Math.round(srgb.g * 255)}, ${Math.round(srgb.b * 255)}, ${a})`
       : '#000'),
+    boxShadow: '0 4px 20px rgba(0,0,0,0.15), 0 8px 40px rgba(0,0,0,0.1)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   };
 
   return (
-    <div style={{ maxWidth: 520, margin: '0 auto', fontFamily: 'system-ui, sans-serif', color: '#111' }}>
-      <h2>OKLCH Color Picker</h2>
+    <div style={{ 
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '40px 20px',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      color: '#111',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    }}>
+      <div style={{
+        maxWidth: 600,
+        width: '100%',
+        padding: '40px',
+        borderRadius: 24,
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.2)',
+      }}>
+        <h2 style={{ 
+          textAlign: 'center', 
+          marginBottom: 32, 
+          fontSize: 28, 
+          fontWeight: 700,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
+          OKLCH Color Picker
+        </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 270px', gap: 20, alignItems: 'start' }}>
-        <div style={{ display: 'grid', gap: 18 }}>
-          <Slider label="Lightness (L)" value={l} min={0} max={100} step={0.1} onChange={setL} />
-          <Slider label="Chroma (C)" value={c} min={0} max={120} step={0.1} onChange={setC} />
-          <Slider label="Hue (H)" value={h} min={0} max={360} step={0.1} onChange={setH} />
-          <Slider label="Alpha (A)" value={a} min={0} max={1} step={0.01} onChange={setA} />
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+          <div style={{ display: 'grid', gap: 24 }}>
+            <Slider label="Lightness (L)" value={l} min={0} max={100} step={0.1} onChange={setL} />
+            <Slider label="Chroma (C)" value={c} min={0} max={120} step={0.1} onChange={setC} />
+            <Slider label="Hue (H)" value={h} min={0} max={360} step={0.1} onChange={setH} />
+            <Slider label="Alpha (A)" value={a} min={0} max={1} step={0.01} onChange={setA} />
+          </div>
 
-        <div style={{ display: 'grid', gap: 12 }}>
-          <div style={previewStyle} />
-          <div style={{ padding: 14, borderRadius: 12, background: '#f8f8f8', border: '1px solid #ddd', display: 'grid', gap: 10 }}>
-            <div style={{ marginBottom: 4, fontWeight: 600 }}>Current color</div>
-            <TextInput
-              label="OKLCH"
-              value={oklchInput}
-              onChange={setOklchInput}
-              onCommit={() => handleColorInputCommit(oklchInput)}
-            />
-            <TextInput
-              label="RGB"
-              value={rgbInput}
-              onChange={setRgbInput}
-              onCommit={() => handleColorInputCommit(rgbInput)}
-            />
-            {inputError && (
-              <div style={{ color: '#a00', fontSize: 13, lineHeight: 1.4 }}>{inputError}</div>
+          <div style={{ display: 'grid', gap: 16, justifyItems: 'center' }}>
+            <div style={previewStyle} />
+            <div style={{ 
+              padding: 20, 
+              borderRadius: 16, 
+              background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)', 
+              border: '1px solid rgba(0,0,0,0.1)', 
+              display: 'grid', 
+              gap: 14,
+              width: '100%',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}>
+              <div style={{ marginBottom: 4, fontWeight: 700, fontSize: 15, color: '#333' }}>Current color</div>
+              <TextInput
+                label="OKLCH"
+                value={oklchInput}
+                onChange={setOklchInput}
+                onCommit={() => handleColorInputCommit(oklchInput)}
+              />
+              <TextInput
+                label="RGB"
+                value={rgbInput}
+                onChange={setRgbInput}
+                onCommit={() => handleColorInputCommit(rgbInput)}
+              />
+              {inputError && (
+                <div style={{ color: '#dc2626', fontSize: 13, lineHeight: 1.5, fontWeight: 500 }}>{inputError}</div>
+              )}
+            </div>
+            {!gamutOk && (
+              <div style={{ 
+                padding: 14, 
+                borderRadius: 12, 
+                background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', 
+                color: '#c2410c', 
+                border: '1px solid #fed7aa',
+                fontWeight: 500,
+                fontSize: 13,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+              }}>
+                Warning: the color is out of sRGB gamut and may display incorrectly.
+              </div>
             )}
           </div>
-          {!gamutOk && (
-            <div style={{ padding: 12, borderRadius: 10, background: '#fff4e5', color: '#a35b00', border: '1px solid #f0c27b' }}>
-              Warning: the color is out of sRGB gamut and may display incorrectly.
-            </div>
-          )}
         </div>
+
+        <style>{`
+          @media (max-width: 768px) {
+            div[style*="gridTemplateColumns: '1fr 280px'"] {
+              grid-template-columns: 1fr !important;
+            }
+            div[style*="justifyItems: 'center'"] {
+              justifyItems: center !important;
+            }
+          }
+        `}</style>
       </div>
     </div>
   );
@@ -127,8 +189,8 @@ export default function OklchColorPicker() {
 
 function Slider({ label, value, min, max, step, onChange }) {
   return (
-    <label style={{ display: 'grid', gap: 8, fontSize: 14 }}>
-      <span style={{ fontWeight: 600 }}>{label}</span>
+    <label style={{ display: 'grid', gap: 10, fontSize: 14 }}>
+      <span style={{ fontWeight: 600, color: '#374151' }}>{label}</span>
       <input
         type="range"
         value={value}
@@ -136,11 +198,19 @@ function Slider({ label, value, min, max, step, onChange }) {
         max={max}
         step={step}
         onChange={(event) => onChange(Number(event.target.value))}
-        style={{ width: '100%' }}
+        style={{ 
+          width: '100%',
+          height: 8,
+          borderRadius: 4,
+          background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+          outline: 'none',
+          WebkitAppearance: 'none',
+          cursor: 'pointer'
+        }}
       />
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#444' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
         <span>{min}</span>
-        <strong>{value}</strong>
+        <strong style={{ color: '#667eea' }}>{value}</strong>
         <span>{max}</span>
       </div>
     </label>
@@ -166,20 +236,39 @@ function TextInput({ label, value, onChange, onCommit }) {
   };
 
   return (
-    <label style={{ display: 'grid', gap: 6, fontSize: 13 }}>
-      <span style={{ fontWeight: 600 }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+    <label style={{ display: 'grid', gap: 8, fontSize: 13 }}>
+      <span style={{ fontWeight: 600, color: '#374151' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <input
           type="text"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          onBlur={onCommit}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e5e7eb';
+            e.target.style.boxShadow = 'none';
+            onCommit();
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
               onCommit();
             }
           }}
-          style={{ width: '100%', boxSizing: 'border-box', padding: '9px 10px', borderRadius: 8, border: '1px solid #ccc', fontFamily: 'monospace' }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#667eea';
+            e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+          }}
+          style={{ 
+            width: '100%', 
+            boxSizing: 'border-box', 
+            padding: '12px 14px', 
+            borderRadius: 10, 
+            border: '2px solid #e5e7eb',
+            fontFamily: 'monospace',
+            fontSize: 13,
+            background: 'white',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+            outline: 'none'
+          }}
         />
         <button
           type="button"
@@ -187,18 +276,20 @@ function TextInput({ label, value, onChange, onCommit }) {
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
           style={{
-            marginLeft: 8,
-            padding: '6px 10px',
-            borderRadius: 8,
+            padding: '12px 16px',
+            borderRadius: 10,
             border: 'none',
-            background: hover ? '#e6e6e6' : '#f0f0f0',
+            background: hover ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
             cursor: 'pointer',
             fontSize: 13,
-            transition: 'background .12s',
+            fontWeight: 600,
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            boxShadow: hover ? '0 4px 12px rgba(102, 126, 234, 0.4)' : '0 2px 8px rgba(102, 126, 234, 0.3)',
           }}
           aria-label={`Copy ${label} value`}
         >
-          {copied ? 'Copied!' : 'Copy'}
+          {copied ? '✓' : '📋'}
         </button>
       </div>
     </label>
